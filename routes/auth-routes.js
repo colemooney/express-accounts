@@ -1,6 +1,7 @@
 // routes/auth-routes.js
 const express = require("express");
 const authRoutes = express.Router();
+const ensureLogin = require("connect-ensure-login");
 
 // User model
 const User = require("../models/user");
@@ -60,5 +61,25 @@ authRoutes.post("/login", passport.authenticate("local", {
   failureFlash: true,
   passReqToCallback: true
 }));
+
+authRoutes.get("/private-page", ensureLogin.ensureLoggedIn(), (req, res) => {
+  res.render("private", { user: req.user });
+});
+
+authRoutes.get("/login", (req, res, next) => {
+  res.render("auth/login", { "message": req.flash("error") });
+});
+
+authRoutes.post("/login", passport.authenticate("local", {
+  successRedirect: "/",
+  failureRedirect: "/login",
+  failureFlash: true,
+  passReqToCallback: true
+}));
+
+authRoutes.get("/logout", (req, res) => {
+  req.logout();
+  res.redirect("/login");
+});
 
 module.exports = authRoutes;

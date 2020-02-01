@@ -8,6 +8,7 @@ const hbs          = require('hbs');
 const mongoose     = require('mongoose');
 const logger       = require('morgan');
 const path         = require('path');
+const flash = require("connect-flash");
 
 const session = require("express-session");
 const bcrypt = require("bcrypt");
@@ -48,6 +49,13 @@ app.use(session({
   resave: true,
   saveUninitialized: true
 }));
+
+app.use(flash());
+passport.use(new LocalStrategy({
+  passReqToCallback: true
+}, (req, username, password, next) => {
+  User.findOne({ username }, (err, user) => {
+    // ...
 
 passport.serializeUser((user, cb) => {
   cb(null, user._id);
